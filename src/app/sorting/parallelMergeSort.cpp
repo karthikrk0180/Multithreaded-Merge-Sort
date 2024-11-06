@@ -2,9 +2,10 @@
 #include "parallelMergeSort.hpp"
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 
-using namespace std;
+const int SIZE_THRESHOLD = 5000;
 
 ParallelMergeSort::ParallelMergeSort(vector<int> *num)
     : num(num) {}
@@ -13,6 +14,13 @@ ParallelMergeSort::~ParallelMergeSort() {}
 
 void ParallelMergeSort::recursiveSort(int left, int right)
 {
+    
+
+    if (right - left < SIZE_THRESHOLD) {
+        std::sort(nums->begin() + left, nums->begin() + right + 1);
+        return;
+    }
+
     if (left >= right)
     {
         return;
@@ -20,14 +28,14 @@ void ParallelMergeSort::recursiveSort(int left, int right)
 
     int mid = left + (right - left) / 2;
 
-    thread thread_1([this, left, mid]
+    std::thread thread_1([this, left, mid]
                     { this->recursiveSort(left, mid); });
-    thread thread_2([this, mid, right]
+    std::thread thread_2([this, mid, right]
                     { this->recursiveSort(mid + 1, right); });
     thread_1.join();
     thread_2.join();
 
-    vector<int> result;
+    std::vector<int> result;
     int i = left;
     int j = mid + 1;
 
@@ -74,8 +82,10 @@ void ParallelMergeSort::sort()
                     { this->recursiveSort(0, (*num).size() - 1); });
     thread_1.join();
 
-    for (int i = 0; i < (*num).size(); i++)
-    {
-        cout << (*num)[i] << endl;
-    }
+    // for (int i = 0; i < (*num).size(); i++)
+    // {
+    //     cout << (*num)[i] << endl;
+    // }
+
+    // comment it for large number or else 💥
 }
